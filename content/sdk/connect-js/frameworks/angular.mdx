@@ -1,0 +1,168 @@
+---
+title: 'Angular Integration'
+---
+
+This guide demonstrates how to integrate Mono Connect into your Angular application.
+
+## Basic Integration
+
+Here's how to implement account linking in an Angular component:
+
+```javascript
+import { Component, OnInit } from '@angular/core';
+import Connect from '@mono.co/connect.js';
+
+@Component({
+  selector: 'app-mono',
+  templateUrl: './mono.component.html',
+  styleUrls: ['./mono.component.css']
+})
+export class MonoComponent implements OnInit {
+  public monoInstance: any;
+
+  constructor() {
+    this.monoInstance = new Connect({
+      key: "PUBLIC_KEY", 
+      onClose: () => console.log('Widget closed'),
+      onLoad: () => console.log('Widget loaded successfully'),
+      onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`)
+    })
+
+    this.monoInstance.setup()
+  }
+
+  ngOnInit() {}
+}
+```
+
+```html
+<!--mono.component.html-->
+<button (click)="monoInstance.open()">
+  Link your account
+</button>
+```
+
+## Reauthorisation Implementation
+
+For reauthorizing an existing account:
+
+```javascript
+import { Component, OnInit } from '@angular/core';
+import Connect from '@mono.co/connect.js';
+
+@Component({
+  selector: 'app-mono',
+  templateUrl: './mono.component.html',
+  styleUrls: ['./mono.component.css']
+})
+export class MonoComponent implements OnInit {
+  public monoInstance: any;
+
+  constructor() {
+    this.monoInstance = new Connect({
+      key: "PUBLIC_KEY", 
+      onSuccess: ({ code }) => console.log(`Reauth successful: ${code}`)
+    })
+
+    this.monoInstance.reauthorise("auth_vb6klH234ox")
+  }
+
+  ngOnInit() {}
+}
+```
+
+```html
+<!--mono.component.html-->
+<button (click)="monoInstance.open()">
+  Reauthorise account
+</button>
+```
+
+## Direct Debit Integration
+
+For implementing payments:
+
+```javascript
+import { Component, OnInit } from '@angular/core';
+import Connect from '@mono.co/connect.js';
+
+@Component({
+  selector: 'app-mono',
+  templateUrl: './mono.component.html',
+  styleUrls: ['./mono.component.css']
+})
+export class MonoComponent implements OnInit {
+  public monoInstance: any;
+
+  constructor() {
+    this.monoInstance = new Connect({
+      key: "PUBLIC_KEY", 
+      scope: "payments",
+      data: {
+        type: 'one-time-debit', // recurring-debit or one-time-debit
+        amount: 150000, //amount in kobo
+        description: "payment for light bill"
+      },
+      onSuccess: (chargeObject) => console.log(`Payment successful`, chargeObject)
+    })
+
+    this.monoInstance.setup()
+  }
+
+  ngOnInit() {}
+}
+```
+
+```html
+<!--mono.component.html-->
+<button (click)="monoInstance.open()">
+  Pay with Mono
+</button>
+```
+
+## Important Notes
+
+### Component Initialization
+
+The Mono Connect instance is initialized in the component's constructor:
+
+```javascript
+constructor() {
+  this.monoInstance = new Connect({
+    key: "PUBLIC_KEY",
+    onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`)
+  })
+  
+  this.monoInstance.setup()
+}
+```
+
+### Event Handling
+
+Event handlers are passed during initialization:
+
+```javascript
+this.monoInstance = new Connect({
+  key: "PUBLIC_KEY",
+  onClose: () => console.log('Widget closed'),
+  onLoad: () => console.log('Widget loaded successfully'),
+  onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`),
+  onEvent: (eventName, data) => console.log(`${eventName} occurred:`, data)
+})
+```
+
+### Template Integration
+
+The connect widget is triggered through a button click event:
+
+```html
+<button (click)="monoInstance.open()">
+  Link your account
+</button>
+```
+
+### Reauthorisation Note
+
+<Note>
+The `reauthorise()` function should be used in place of the `setup()` function. The two should not be used at the same time.
+</Note>

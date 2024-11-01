@@ -1,0 +1,126 @@
+---
+title: 'Reauthorization'
+---
+
+
+Reauthorization allows you to reconnect to an already authenticated account when additional verification is required. This is commonly needed when:
+- Multi-Factor Authentication (MFA) is required
+- Two-Factor Authentication (2FA) has been set up by the user
+- Additional security verification is needed
+- Previous connection has expired
+
+## Implementation
+
+Instead of using the regular `setup()` method, reauthorization uses the `reauthorise()` method:
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  onSuccess: ({ code }) => console.log(`Reauth successful: ${code}`)
+})
+
+// Pass the reauth token for the account
+connect.reauthorise("auth_token_here")
+```
+
+<Note>
+  The `reauthorise()` method and `setup()` method should not be used together. When both are called, the last called method takes precedence.
+</Note>
+
+## Complete Example
+
+```javascript
+import connect from '@mono.co/connect.js'
+
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  onClose: () => console.log('Widget closed'),
+  onLoad: () => console.log('Widget loaded successfully'),
+  onSuccess: ({ code }) => console.log(`Reauth successful: ${code}`)
+})
+
+function ReauthorizeButton() {
+  const reauth_token = "auth_vb6klH234ox"  // Get this from your backend
+  
+  const handleReauthorization = () => {
+    connect.reauthorise(reauth_token)
+    connect.open()
+  }
+
+  return (
+    <button onClick={handleReauthorization}>
+      Reauthorize Account
+    </button>
+  )
+}
+```
+
+## Event Handling
+
+During reauthorization, you can monitor the process using the `onEvent` callback:
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  onEvent: (eventName, data) => {
+    switch(eventName) {
+      case "SUBMIT_MFA":
+        console.log("MFA submitted:", data.mfaType)
+        break
+      case "ERROR":
+        console.log("Error during reauth:", data.errorMessage)
+        break
+      case "SUCCESS":
+        console.log("Reauthorization successful")
+        break
+    }
+  }
+})
+```
+
+## Error Handling
+
+If a reauthorization token is not provided, the SDK will throw an error:
+
+```javascript
+// This will throw an error
+connect.reauthorise() // Error: "Re-auth token is required for reauthorisation"
+
+// Always ensure you have a valid reauth token
+if (reauthToken) {
+  connect.reauthorise(reauthToken)
+  connect.open()
+} else {
+  console.error("Missing reauth token")
+}
+```
+
+## Getting a Reauth Token
+
+To obtain a reauth token:
+
+1. Your backend should receive the initial auth code from successful account linking
+2. Exchange this for an account ID using Mono's API
+3. When reauthorization is needed, use the account ID to generate a reauth token
+4. Pass this token to your frontend for use with `reauthorise()`
+
+<Note>
+  Check Mono's [API documentation](https://docs.mono.co/reference/intro#reauth-code) for details on obtaining reauth tokens.
+</Note>
+
+## Best Practices
+
+1. **Token Management**
+   - Store reauth tokens securely
+   - Generate new tokens only when needed
+   - Don't reuse old tokens
+
+2. **Error Handling**
+   - Always handle potential errors during reauthorization
+   - Provide clear feedback to users
+   - Have a fallback for failed reauthorization attempts
+
+3. **User Experience**
+   - Clearly communicate why reauthorization is needed
+   - Guide users through the process
+   - Handle success and failure states appropriately

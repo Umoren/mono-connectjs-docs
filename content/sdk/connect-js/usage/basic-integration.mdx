@@ -1,0 +1,173 @@
+---
+title: 'Basic Integration'
+---
+
+This guide walks you through integrating Mono Connect.js for account linking. You'll learn how to initialize the Connect Widget, handle events, and process successful connections.
+
+## Initialize Connect
+
+First, create a new instance of Mono Connect with your public key and required callbacks:
+
+```javascript
+import Connect from '@mono.co/connect.js'
+
+const connect = new Connect({
+  key: "YOUR_PUBLIC_KEY",
+  onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`),
+  onClose: () => console.log('Widget closed'),
+  onLoad: () => console.log('Widget loaded successfully'),
+  onEvent: (eventName, data) => console.log(`${eventName} occurred:`, data)
+})
+```
+
+## Required Configuration
+
+The Connect instance requires these parameters:
+
+| Parameter | Type | Description |
+| --------- | ---- | ----------- |
+| `key` | string | Your Mono public API key |
+| `onSuccess` | function | Called after successful account linking |
+| `data.customer` | object | Customer information (required) |
+
+## Adding Customer Data
+
+You must provide customer information when initializing Connect:
+
+```javascript
+const connect = new Connect({
+  key: "YOUR_PUBLIC_KEY",
+  data: {
+    customer: {
+      name: 'John Doe',
+      email: 'john@doe.com',
+      identity: {
+        type: 'bvn',
+        number: '2323233239'
+      }
+    }
+  },
+  onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`)
+})
+```
+
+## Launching the Widget
+
+After initialization, you need to setup and open the widget:
+
+```javascript
+// Setup the widget (typically called once)
+connect.setup()
+
+// Create a button to launch the widget
+function LaunchButton() {
+  return (
+    <button onClick={() => connect.open()}>
+      Link your account
+    </button>
+  )
+}
+```
+
+## Handling Events
+
+Monitor the connection process using the `onEvent` callback:
+
+```javascript
+const connect = new Connect({
+  key: "YOUR_PUBLIC_KEY",
+  data: { customer },
+  onEvent: (eventName, data) => {
+    switch(eventName) {
+      case "OPENED":
+        console.log("Widget opened")
+        break
+      case "INSTITUTION_SELECTED":
+        console.log("Selected institution:", data.institution.name)
+        break
+      case "SUBMIT_CREDENTIALS":
+        console.log("User submitted credentials")
+        break
+      case "ACCOUNT_LINKED":
+        console.log("Account linked successfully")
+        break
+    }
+  }
+})
+```
+
+## Processing Success
+
+When an account is successfully linked, handle the auth code in `onSuccess`:
+
+```javascript
+const connect = new Connect({
+  key: "YOUR_PUBLIC_KEY",
+  data: { customer },
+  onSuccess: ({ code }) => {
+    // Send this code to your backend to exchange for an account ID
+    console.log("Authentication code:", code)
+  }
+})
+```
+
+## Error Handling
+
+Monitor for errors using the onEvent callback:
+
+```javascript
+const connect = new Connect({
+  key: "YOUR_PUBLIC_KEY",
+  data: { customer },
+  onEvent: (eventName, data) => {
+    if (eventName === "ERROR") {
+      console.error("Error type:", data.errorType)
+      console.error("Error message:", data.errorMessage)
+    }
+  }
+})
+```
+
+## Complete Example
+
+Here's a complete example putting it all together:
+
+```javascript
+const connect = new Connect({
+  key: "YOUR_PUBLIC_KEY",
+  data: {
+    customer: {
+      name: 'John Doe',
+      email: 'john@doe.com',
+      identity: {
+        type: 'bvn',
+        number: '2323233239'
+      }
+    }
+  },
+  onSuccess: ({ code }) => {
+    console.log(`Account linked successfully: ${code}`)
+  },
+  onClose: () => {
+    console.log('User closed the widget')
+  },
+  onEvent: (eventName, data) => {
+    console.log(`Event ${eventName}:`, data)
+  }
+})
+
+// Setup once
+connect.setup()
+
+// Open when needed
+function LinkAccountButton() {
+  return (
+    <button 
+      onClick={() => connect.open()}
+      className="link-button"
+    >
+      Link your account with Mono
+    </button>
+  )
+}
+```

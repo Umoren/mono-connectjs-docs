@@ -1,0 +1,140 @@
+---
+title: 'Quickstart'
+description: 'Get started with Mono Connect.js in minutes'
+---
+
+# Quickstart Guide
+
+This guide will help you integrate Mono Connect.js into your application. By the end, you'll be able to connect user bank accounts and handle authentication flows.
+
+## Requirements
+
+- Node.js 10 or higher
+- A Mono account with API credentials
+- Your Mono public key from the [dashboard](https://app.withmono.com/apps)
+
+## Installation
+
+Install the package using npm or yarn:
+
+```bash
+# Using npm
+npm install @mono.co/connect.js
+
+# Using yarn
+yarn add @mono.co/connect.js
+```
+
+## Basic Integration
+
+### 1. Import and Initialize
+
+```javascript
+import Connect from '@mono.co/connect.js'
+
+const connect = new Connect({
+  key: "YOUR_PUBLIC_KEY", 
+  onClose: () => console.log('Widget closed'),
+  onLoad: () => console.log('Widget loaded successfully'),
+  onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`)
+})
+
+// Initialize the Connect Widget
+connect.setup()
+```
+
+### 2. Create a Connect Button
+
+```javascript
+// Add a button to trigger the widget
+<button onClick={() => connect.open()}>
+  Link your account with Mono
+</button>
+```
+
+## Configuration Options
+
+### Required Parameters
+
+- `key`: Your Mono public API key
+- `onSuccess`: Callback function when account is successfully linked
+
+```javascript
+{
+  key: "YOUR_PUBLIC_KEY",
+  onSuccess: ({ code }) => {
+    // Handle successful connection
+    console.log("Auth code:", code)
+  }
+}
+```
+
+### Optional Parameters
+
+- `onClose`: Called when widget is closed
+- `onLoad`: Called when widget is loaded
+- `onEvent`: Called during various widget events
+
+```javascript
+{
+  onClose: () => console.log("Widget closed"),
+  onLoad: () => console.log("Widget loaded"),
+  onEvent: (eventName, data) => {
+    console.log(`Event ${eventName}:`, data)
+  }
+}
+```
+
+## Direct Debit Setup
+
+For payment integration, include the payments scope and configuration:
+
+```javascript
+const connect = new Connect({
+  key: "YOUR_PUBLIC_KEY",
+  scope: "payments",
+  data: {
+    type: "one-time-debit", // or "recurring-debit"
+    amount: 150000, // amount in kobo
+    description: "Payment for service"
+  },
+  onSuccess: (chargeObject) => console.log("Payment successful", chargeObject)
+})
+```
+
+## Customer Data
+
+You can pass customer information during initialization:
+
+```javascript
+const connect = new Connect({
+  key: "YOUR_PUBLIC_KEY",
+  data: { 
+    customer: {
+      name: "John Doe",
+      email: "john@doe.com",
+      identity: {
+        type: "bvn",
+        number: "1234567890"
+      }
+    }
+  },
+  onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`)
+})
+```
+
+## Next Steps
+
+After completing this quickstart:
+
+<CardGroup cols={3}>
+  <Card title="Handle Events" icon="bell" href="/sdk/connect-js/reference/events">
+    Learn about all available widget events and how to handle them
+  </Card>
+  <Card title="Framework Integration" icon="code" href="connect/sdk/connect-js/reference/react">
+    See framework-specific integration guides
+  </Card>
+  <Card title="Payment Integration" icon="credit-card" href="/sdk/connect-js/usage/direct-debit">
+    Implement direct debit payments
+  </Card>
+</CardGroup>

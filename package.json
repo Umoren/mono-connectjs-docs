@@ -1,0 +1,12 @@
+{
+  "name": "mono-connectjs-docs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "mintlify dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

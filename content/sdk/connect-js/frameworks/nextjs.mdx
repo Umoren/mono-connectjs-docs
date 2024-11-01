@@ -1,0 +1,159 @@
+---
+title: 'Next.js Integration'
+---
+
+This guide demonstrates how to integrate Mono Connect into your Next.js application.
+
+## Basic Integration
+
+Here's how to implement account linking in a Next.js page:
+
+```javascript
+import { useState, useCallback } from "react";
+
+export default function IndexPage() {
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+
+  const openMonoWidget = useCallback(async () => {
+    const Connect = (await import("@mono.co/connect.js")).default;
+    
+    const monoInstance = new Connect({
+      key: "PUBLIC_KEY",
+      onClose: () => console.log("Widget closed"),
+      onLoad: () => setScriptLoaded(true),
+      onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`),
+    });
+
+    monoInstance.setup();
+    monoInstance.open();
+  }, []);
+
+  return (
+    <div>
+      Hello World. Try Mono connect with next.js
+      <div style={{ marginTop: "10px" }}>
+        <button onClick={() => openMonoWidget()}>
+          Link a financial account
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+## Reauthorisation Implementation
+
+For reauthorizing an existing account:
+
+```javascript
+import { useState, useCallback } from "react";
+
+export default function IndexPage() {
+  const [reauthCode, setReauthCode] = useState("reauth_toKeN");
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+
+  const reauthenticate = useCallback(async () => {
+    const Connect = (await import("@mono.co/connect.js")).default;
+
+    const monoInstance = new Connect({
+      key: "PUBLIC_KEY",
+      onClose: () => console.log("Widget closed"),
+      onLoad: () => setScriptLoaded(true),
+      onSuccess: ({ code }) => console.log(`Reauth successful: ${code}`),
+    });
+
+    monoInstance.reauthorise(reauthCode);
+    monoInstance.open();
+  }, []);
+
+  return (
+    <div>
+      Hello World. Try Mono connect with next.js
+      <div style={{ marginTop: "10px" }}>
+        <button onClick={() => reauthenticate()}>
+          Reauthenticate your account
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+## Direct Debit Integration
+
+For implementing payments:
+
+```javascript
+import { useState, useCallback } from "react";
+
+export default function IndexPage() {
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+
+  const payWithMono = useCallback(async () => {
+    const Connect = (await import("@mono.co/connect.js")).default;
+    
+    const monoInstance = new Connect({
+      key: "PUBLIC_KEY",
+      scope: "payments",
+      data: {
+        type: "one-time-debit", // recurring-debit or one-time-debit
+        amount: 150000, // amount in kobo
+        description: "Payment for light bill"
+      },
+      onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`),
+    });
+
+    monoInstance.setup();
+    monoInstance.open();
+  }, []);
+
+  return (
+    <div>
+      Hello World. Try Mono connect with next.js
+      <div style={{ marginTop: "10px" }}>
+        <button onClick={() => payWithMono()}>
+          Pay with Mono
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+## Important Implementation Notes
+
+### Server-Side Rendering Considerations
+
+<Note>
+Next.js as an SSR or SSG framework means the code is rendered on the server first, hence DOM manipulation isn't possible until the code is rendered on the browser. Make sure you are checking if the window property is available before creating an instance of the widget.
+</Note>
+
+### Dynamic Import Pattern
+
+The Connect module is imported dynamically to ensure it only loads on the client side:
+
+```javascript
+const Connect = (await import("@mono.co/connect.js")).default;
+```
+
+### Script Loading State
+
+Track the loading state of the widget:
+
+```javascript
+const [scriptLoaded, setScriptLoaded] = useState(false);
+
+// In Connect configuration
+onLoad: () => setScriptLoaded(true)
+```
+
+### Using useCallback
+
+Event handlers are wrapped in useCallback to prevent unnecessary re-renders:
+
+```javascript
+const openMonoWidget = useCallback(async () => {
+  const Connect = (await import("@mono.co/connect.js")).default;
+  // ... rest of the implementation
+}, []);
+```

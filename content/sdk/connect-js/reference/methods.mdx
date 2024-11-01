@@ -1,0 +1,102 @@
+---
+title: 'Methods'
+---
+
+The Mono Connect SDK provides several methods to control the widget's behavior.
+
+## setup()
+
+Loads the widget onto the DOM but keeps it hidden until `open()` is called.
+
+```javascript
+import Connect from '@mono.co/connect.js'
+
+const connect = new Connect({
+  key: "PUBLIC_KEY"
+  // ... other config
+})
+
+// Basic setup
+connect.setup()
+
+// Setup with institution preselection
+connect.setup({
+  selectedInstitution: {
+    id: "5f2d08c060b92e2888287706",
+    auth_method: "internet_banking"
+  }
+})
+```
+
+## reauthorise(reauth_token)
+
+Loads the reauthorization widget for an existing connected account.
+
+```javascript
+connect.reauthorise("auth_fb8PP3jYA0")
+```
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| reauth_token | string | Yes | Token for the account to be reauthorized |
+
+<Note>
+The `reauthorise()` method and `setup()` method should not be used together. When both are called, the last called method takes precedence.
+</Note>
+
+## open()
+
+Makes the widget visible to the user.
+
+```javascript
+connect.setup()
+connect.open()
+```
+
+## close()
+
+Programmatically hides the widget.
+
+```javascript
+connect.setup()
+connect.open()
+
+// Hide the widget after 5 seconds
+setTimeout(() => connect.close(), 5000)
+```
+
+## fetchInstitutions()
+
+Fetches available financial institutions from Mono's API.
+
+```javascript
+const connect = new Connect({ key: "PUBLIC_KEY" })
+
+// Returns a Promise
+connect.fetchInstitutions()
+  .then(response => {
+    console.log('Available institutions:', response.data)
+  })
+```
+
+## Complete Example
+
+```javascript
+import Connect from '@mono.co/connect.js'
+
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  onSuccess: ({code}) => console.log("Success:", code),
+  onClose: () => console.log("Widget closed")
+})
+
+// Initial setup
+connect.setup()
+
+// Show widget
+document.getElementById("connect-button")
+  .addEventListener("click", () => connect.open())
+
+// Close programmatically if needed
+const closeWidget = () => connect.close()
+```

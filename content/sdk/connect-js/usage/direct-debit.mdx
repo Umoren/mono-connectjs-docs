@@ -1,0 +1,126 @@
+---
+title: 'Direct Debit'
+---
+
+Mono Connect allows you to process one-time and recurring payments directly from connected bank accounts. This guide shows you how to implement direct debit payments.
+
+## Payment Types
+
+Mono Connect supports two types of direct debit:
+- One-time debit: Single payment transactions
+- Recurring debit: Repeating payment schedules
+
+## Basic Implementation
+
+To initiate a direct debit payment, configure Connect with the payments scope:
+
+```javascript
+import Connect from '@mono.co/connect.js'
+
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  scope: "payments",
+  data: {
+    type: "one-time-debit", // or "recurring-debit"
+    amount: 150000, // amount in kobo
+    description: "Payment for light bill"
+  },
+  onSuccess: (chargeObject) => console.log(`Payment successful`, chargeObject)
+})
+
+connect.setup()
+connect.open()
+```
+
+## Configuration Options
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `scope` | string | Must be set to "payments" |
+| `data.type` | string | "one-time-debit" or "recurring-debit" |
+| `data.amount` | number | Amount in kobo (e.g., 150000 for ₦1,500) |
+| `data.description` | string | Description of the payment |
+
+## Handling Success
+
+The `onSuccess` callback receives a charge object containing payment details:
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  scope: "payments",
+  data: {
+    type: "one-time-debit",
+    amount: 150000,
+    description: "Payment for light bill"
+  },
+  onSuccess: (chargeObject) => {
+    // Handle successful payment
+    console.log(chargeObject)
+    // Contains amount, transaction_reference, type, etc.
+  }
+})
+```
+
+## Example: One-time Payment
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  scope: "payments",
+  data: {
+    type: "one-time-debit",
+    amount: 150000,
+    description: "Payment for light bill"
+  },
+  onSuccess: (chargeObject) => console.log(`Payment successful`, chargeObject),
+  onClose: () => console.log('Widget closed'),
+  onLoad: () => console.log('Widget loaded successfully')
+})
+
+connect.setup()
+```
+
+## Example: Recurring Payment
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  scope: "payments",
+  data: {
+    type: "recurring-debit",
+    amount: 150000,
+    description: "Monthly subscription"
+  },
+  onSuccess: (chargeObject) => console.log(`Payment successful`, chargeObject)
+})
+
+connect.setup()
+```
+
+## Payment Events
+
+Monitor the payment process using the `onEvent` callback:
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  scope: "payments",
+  data: {
+    type: "one-time-debit",
+    amount: 150000,
+    description: "Payment for light bill"
+  },
+  onEvent: (eventName, data) => {
+    if (eventName === "OPENED") {
+      console.log("Payment widget opened")
+    } else if (eventName === "SUCCESS") {
+      console.log("Payment successful")
+    }
+  }
+})
+```
+
+<Note>
+When using direct debit, the `onSuccess` callback receives a charge object instead of the auth code returned during account linking.
+</Note>

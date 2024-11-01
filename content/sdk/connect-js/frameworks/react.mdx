@@ -1,0 +1,179 @@
+---
+title: 'React Integration'
+---
+
+This guide demonstrates how to integrate Mono Connect into your React application.
+
+## Basic Integration
+
+Here's how to implement account linking in a React component:
+
+```javascript
+import React from 'react';
+import Connect from '@mono.co/connect.js';
+
+export default function App() {
+  const monoConnect = React.useMemo(() => {
+    const monoInstance = new Connect({
+      onClose: () => console.log('Widget closed'),
+      onLoad: () => console.log('Widget loaded successfully'),
+      onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`),
+      key: "PUBLIC_KEY"
+    })
+
+    monoInstance.setup()
+    
+    return monoInstance;
+  }, [])
+
+  return (
+    <div>
+      <button onClick={() => monoConnect.open()}>
+        Link account with Mono
+      </button>
+    </div>
+  )
+}
+```
+
+## Reauthorisation
+
+For reauthorizing an existing account:
+
+```javascript
+import React from 'react';
+import Connect from '@mono.co/connect.js';
+
+export default function App() {
+  const monoConnect = React.useMemo(() => {
+    const monoInstance = new Connect({
+      key: "PUBLIC_KEY",
+      onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`),
+    })
+    
+    return monoInstance;
+  }, [])
+
+  function reauthoriseAccount() {
+    const reauth_token = "code_xyzUi8olavk";
+    monoConnect.reauthorise(reauth_token);
+    monoConnect.open();
+  }
+
+  return (
+    <div>
+      <button onClick={() => reauthoriseAccount()}>
+        Reauthorise user account
+      </button>
+    </div>
+  )
+}
+```
+
+## Direct Debit Integration
+
+For implementing payments:
+
+```javascript
+import React from 'react';
+import Connect from '@mono.co/connect.js';
+
+export default function App() {
+  const monoConnect = React.useMemo(() => {
+    const monoInstance = new Connect({
+      key: "PUBLIC_KEY",
+      scope: "payments",
+      data: {
+        type: "one-time-debit", // one-time-debit || recurring-debit
+        amount: 150000, // amount in kobo
+        description: "Payment for light bill",
+      },
+      onSuccess: (chargeObject) => console.log(`charged successfully`, chargeObject),
+    })
+
+    monoInstance.setup()
+    
+    return monoInstance;
+  }, [])
+
+  return (
+    <div>
+      <button onClick={() => monoConnect.open()}>
+        Pay with Mono
+      </button>
+    </div>
+  )
+}
+```
+
+## Implementation Notes
+
+### Using `useMemo`
+The Connect instance is memoized using `React.useMemo()` to ensure it's not recreated on every render:
+
+```javascript
+const monoConnect = React.useMemo(() => {
+  const monoInstance = new Connect({...})
+  return monoInstance;
+}, [])
+```
+
+### Event Handling
+
+You can handle various events during the connection process:
+
+```javascript
+const monoConnect = React.useMemo(() => {
+  return new Connect({
+    key: "PUBLIC_KEY",
+    onSuccess: ({ code }) => {
+      // Handle successful connection
+      console.log(`Connected: ${code}`)
+    },
+    onClose: () => {
+      // Handle widget closure
+      console.log('Widget closed')
+    },
+    onLoad: () => {
+      // Handle widget load
+      console.log('Widget loaded')
+    },
+    onEvent: (eventName, data) => {
+      // Handle other events
+      console.log(`Event ${eventName}:`, data)
+    }
+  })
+}, [])
+```
+
+### Button Implementation
+
+The connect widget is triggered by calling the `open()` method:
+
+```javascript
+<button onClick={() => monoConnect.open()}>
+  Connect Bank Account
+</button>
+```
+
+### Customer Data
+
+When working with customer data:
+
+```javascript
+const monoConnect = React.useMemo(() => {
+  const monoInstance = new Connect({
+    key: "PUBLIC_KEY",
+    data: {
+      customer: {
+        name: 'John Doe',
+        email: 'john@doe.com',
+      }
+    },
+    onSuccess: ({ code }) => console.log(`Linked successfully: ${code}`),
+  })
+
+  monoInstance.setup()
+  return monoInstance;
+}, [])
+```

@@ -1,0 +1,100 @@
+---
+title: 'Introduction'
+description: 'Securely connect bank accounts to your application with Mono Connect'
+---
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Bank Account Linking" icon="link">
+    Connect users' bank accounts with a pre-built, secure interface
+  </Card>
+  <Card title="Direct Debit" icon="credit-card">
+    Process one-time or recurring payments directly from connected accounts
+  </Card>
+  <Card title="Framework Agnostic" icon="puzzle-piece">
+    Works seamlessly with React, Angular, Next.js, and other JavaScript frameworks
+  </Card>
+  <Card title="Event Tracking" icon="bell">
+    Monitor the connection process with detailed event callbacks
+  </Card>
+</CardGroup>
+
+## Installation
+
+```bash
+# Using npm
+npm install @mono.co/connect.js
+
+# Using yarn
+yarn add @mono.co/connect.js
+```
+
+## Quick Implementation
+
+```javascript
+import Connect from '@mono.co/connect.js'
+
+const connect = new Connect({
+  key: "YOUR_PUBLIC_KEY",
+  onSuccess: ({code}) => console.log(`Connected successfully: ${code}`),
+  onClose: () => console.log("Widget closed"),
+  onLoad: () => console.log("Widget loaded successfully")
+})
+
+connect.setup()
+```
+
+## Core Features
+
+### Secure Authentication
+- Pre-built UI for bank selection and authentication
+- Support for multiple authentication methods
+- Built-in security best practices
+
+### Payment Integration
+- Direct debit support for both one-time and recurring payments
+- Secure payment processing
+- Customizable payment flows
+
+### Event Tracking
+Monitor the entire connection process with events for:
+- Widget states (loaded, opened, closed)
+- User actions (institution selected, authentication attempts)
+- Success and error states
+- Account linking status
+
+## Getting Started
+
+<Steps>
+  <Step title="Sign Up">
+    Create an account on the [Mono Dashboard](https://app.withmono.com/dashboard)
+  </Step>
+  <Step title="Get Your Keys">
+    Obtain your public and secret keys from the dashboard
+  </Step>
+  <Step title="Install">
+    Add the Connect.js package to your project
+  </Step>
+  <Step title="Integrate">
+    Follow our [quickstart guide](/quickstart) to implement Connect.js
+  </Step>
+</Steps>
+
+## Requirements
+
+- Node.js 10 or higher
+- A Mono account with API credentials
+
+## Support
+
+Need help? We're here for you:
+- Email us at hi@mono.co
+- Join us on Slack
+- [Report issues](https://github.com/withmono/connect.js/issues) on GitHub
+
+## Version 2.0.2 - Public Beta
+
+<Note>
+Version 2.0.2 is currently in public beta. While it's available for testing and feedback, please be aware that features may change before the final release.
+</Note>

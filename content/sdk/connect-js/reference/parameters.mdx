@@ -1,0 +1,185 @@
+---
+title: 'Parameters'
+---
+
+
+Configuration parameters for initializing Mono Connect.
+
+## Required Parameters
+
+### key
+Your Mono public API key from the [Mono dashboard](https://app.withmono.com/apps).
+
+```javascript
+import Connect from '@mono.co/connect.js'
+
+new Connect({ 
+  key: "mono_public_key" 
+})
+```
+
+### onSuccess
+Callback function that receives authentication code or payment response.
+
+```javascript
+new Connect({
+  key: "mono_public_key",
+  onSuccess: (data) => {
+    // For authentication flows
+    console.log("auth code:", data.code)
+    // For payment flows
+    console.log("charge object:", data)
+  }
+})
+```
+
+### customer
+Customer information object (required for all operations).
+
+```javascript
+new Connect({ 
+  key: "mono_public_key",
+  data: {
+    customer: {
+      // Use existing customer ID
+      id: "611aa53041247f2801efb222",
+      
+      // Or create new customer
+      name: "Samuel Olumide",
+      email: "samuel.olumide@gmail.com",
+      identity: {
+        type: "bvn",
+        number: "2323233239"
+      }
+    }
+  }
+})
+```
+
+## Optional Parameters
+
+### onClose
+Callback when user exits the Connect flow.
+
+```javascript
+new Connect({
+  key: "mono_public_key",
+  onClose: () => console.log("Widget closed")
+})
+```
+
+### onLoad
+Callback when widget is mounted to DOM.
+
+```javascript
+new Connect({
+  key: "mono_public_key",
+  onLoad: () => console.log("Widget loaded successfully")
+})
+```
+
+### onEvent
+Callback for monitoring Connect flow events.
+
+```javascript
+new Connect({
+  key: "mono_public_key",
+  onEvent: (eventName, data) => console.log(eventName, data)
+})
+```
+
+### reference
+String identifier passed to event callbacks for tracking Connect instances.
+
+```javascript
+new Connect({
+  key: "mono_public_key",
+  reference: "some_random_string"
+})
+```
+
+### scope
+Defines the operation type. Required for payments.
+
+```javascript
+new Connect({
+  key: "mono_public_key",
+  scope: "payments", // Use "auth" for account linking
+  data: {
+    type: "one-time-debit",
+    amount: 150000,
+    description: "Payment for light bill"
+  }
+})
+```
+
+## Payment Configuration
+
+When scope is "payments", the following data parameters are required:
+
+```javascript
+new Connect({
+  key: "mono_public_key",
+  scope: "payments",
+  data: {
+    type: "one-time-debit", // or "recurring-debit"
+    amount: 150000, // amount in kobo
+    description: "Payment description"
+  }
+})
+```
+
+## Institution Preselection
+
+Used with setup() to load directly to an institution's login:
+
+```javascript
+const connect = new Connect({ key: "mono_public_key" })
+
+connect.setup({
+  selectedInstitution: {
+    id: "5f2d08c060b92e2888287706",
+    auth_method: "internet_banking" // or "mobile_banking"
+  }
+})
+```
+
+## Complete Configuration Example
+
+```javascript
+const connect = new Connect({
+  key: "mono_public_key",
+  scope: "auth",
+  data: {
+    customer: {
+      name: "Samuel Olumide",
+      email: "samuel.olumide@gmail.com",
+      identity: {
+        type: "bvn",
+        number: "2323233239"
+      }
+    }
+  },
+  onSuccess: ({code}) => console.log("Auth code:", code),
+  onClose: () => console.log("Widget closed"),
+  onLoad: () => console.log("Widget loaded"),
+  onEvent: (eventName, data) => console.log(eventName, data),
+  reference: "unique_transaction_ref"
+})
+```
+
+## Type Definitions
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `key` | string | Yes | Mono public API key |
+| `onSuccess` | function | Yes | Success callback |
+| `data.customer` | object | Yes | Customer information |
+| `scope` | string | No | Operation type ("auth" or "payments") |
+| `onClose` | function | No | Close callback |
+| `onLoad` | function | No | Load callback |
+| `onEvent` | function | No | Event monitoring callback |
+| `reference` | string | No | Instance identifier |
+| `data.type` | string | For payments | Payment type |
+| `data.amount` | number | For payments | Amount in kobo |
+| `data.description` | string | For payments | Payment description |

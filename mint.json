@@ -1,0 +1,83 @@
+{
+    "$schema": "https://mintlify.com/schema.json",
+    "name": "Mono Documentation",
+    "logo": {
+        "dark": "/logo/dark.svg",
+        "light": "/logo/light.svg"
+    },
+    "favicon": "/favicon.png",
+    "colors": {
+        "primary": "#0B4BE2",
+        "light": "#4D7FEA",
+        "dark": "#0B4BE2",
+        "anchors": {
+            "from": "#0B4BE2",
+            "to": "#4D7FEA"
+        }
+    },
+    "topbarLinks": [
+        {
+            "name": "Support",
+            "url": "https://support.mono.co/en"
+        }
+    ],
+    "topbarCtaButton": {
+        "name": "Get API Keys",
+        "url": "https://app.mono.co/apps/"
+    },
+    "anchors": [
+        {
+            "name": "SDKs",
+            "icon": "puzzle-piece",
+            "url": "https://docs.mono.co/docs/sdks"
+        },
+        {
+            "name": "Community",
+            "icon": "slack",
+            "url": "https://devwithmono.slack.com/join/shared_invite/zt-296d52n0h-JPVfKGnCDHWB5Mg7BsgfrA#/shared-invite/email"
+        }
+    ],
+    "navigation": [
+        {
+            "group": "Getting Started",
+            "pages": [
+                "/content/index",
+                "/content/quickstart"
+            ]
+        },
+        {
+            "group": "Connect.js SDK",
+            "pages": [
+                {
+                    "group": "Usage",
+                    "pages": [
+                        "content/sdk/connect-js/usage/basic-integration",
+                        "content/sdk/connect-js/usage/reauthorization",
+                        "content/sdk/connect-js/usage/direct-debit"
+                    ]
+                },
+                {
+                    "group": "Framework Guides",
+                    "pages": [
+                        "content/sdk/connect-js/frameworks/react",
+                        "content/sdk/connect-js/frameworks/angular",
+                        "content/sdk/connect-js/frameworks/nextjs"
+                    ]
+                },
+                {
+                    "group": "API Reference",
+                    "pages": [
+                        "content/sdk/connect-js/reference/methods",
+                        "content/sdk/connect-js/reference/events",
+                        "content/sdk/connect-js/reference/parameters"
+                    ]
+                }
+            ]
+        }
+    ],
+    "footerSocials": {
+        "twitter": "https://twitter.com/mono_HQ",
+        "github": "https://github.com/withmono",
+        "linkedin": "https://www.linkedin.com/company/mono-co"
+    }
+}

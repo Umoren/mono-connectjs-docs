@@ -1,0 +1,135 @@
+---
+title: 'Events'
+---
+
+Mono Connect provides event callbacks to help you monitor and respond to widget states and user actions.
+
+## Event Callbacks
+
+### onSuccess
+
+Required callback that triggers after successful account linking or payment.
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  onSuccess: (data) => {
+    // For authentication
+    console.log("auth code:", data.code)
+    
+    // For payments
+    console.log("charge object:", data)
+  }
+})
+```
+
+### onClose
+
+Optional callback for when the widget is closed.
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  onClose: () => console.log("Widget closed")
+})
+```
+
+### onLoad
+
+Optional callback triggered when the widget is mounted to the DOM.
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  onLoad: () => console.log("Widget loaded successfully")
+})
+```
+
+### onEvent
+
+Optional callback for monitoring specific events during the Connect flow.
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  onEvent: (eventName, data) => {
+    console.log(`${eventName} occurred:`, data)
+  }
+})
+```
+
+## Available Events
+
+| Event Name | Description | Data Properties |
+|------------|-------------|-----------------|
+| `LOADED` | Widget has been loaded | `timestamp` |
+| `OPENED` | Widget is displayed to user | `timestamp` |
+| `EXIT` | User closes the widget | `timestamp`, `pageName` |
+| `ERROR` | An error occurred | `errorType`, `errorMessage` |
+| `INSTITUTION_SELECTED` | User selected a bank | `institution: {id, name}`, `authMethod` |
+| `AUTH_METHOD_SWITCHED` | Authentication method changed | `prevAuthMethod`, `authMethod` |
+| `SUBMIT_CREDENTIALS` | Login attempt made | `timestamp` |
+| `SUBMIT_MFA` | MFA code submitted | `mfaType` |
+| `ACCOUNT_LINKED` | Account successfully connected | `institution: {id, name}` |
+| `ACCOUNT_SELECTED` | Account selection made | `selectedAccountsCount` |
+| `SUCCESS` | Overall success event | Varies based on operation type |
+
+## Event Data Object
+
+The data object passed to onEvent contains different properties based on the event:
+
+```javascript
+{
+  // Common properties (all events)
+  "reference": "ref_code_passed",
+  "timestamp": 1234567890,
+
+  // Error event
+  "errorType": "ERROR_NAME",
+  "errorMessage": "An error occurred.",
+
+  // Authentication events
+  "mfaType": "OTP",
+  "prevAuthMethod": "internet_banking",
+  "authMethod": "mobile_banking",
+  "pageName": "MFA",
+
+  // Selection events
+  "selectedAccountsCount": 2,
+  "institution": {
+    "id": "66059eO033be88012",
+    "name": "GTBank"
+  }
+}
+```
+
+## Usage Example
+
+```javascript
+const connect = new Connect({
+  key: "PUBLIC_KEY",
+  onEvent: (eventName, data) => {
+    switch(eventName) {
+      case "OPENED":
+        console.log("Widget opened")
+        break
+      case "INSTITUTION_SELECTED":
+        console.log("Bank selected:", data.institution.name)
+        break
+      case "SUBMIT_CREDENTIALS":
+        console.log("Login attempted")
+        break
+      case "ACCOUNT_LINKED":
+        console.log("Account linked:", data.institution.name)
+        break
+      case "ERROR":
+        console.error("Error:", data.errorMessage)
+        break
+    }
+  }
+})
+```
+
+<Note>
+All events include timestamp and reference (if provided) in their data object. The reference can be used to track specific Connect instances across events.
+</Note>
